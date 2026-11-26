@@ -1,0 +1,32 @@
+
+name: 'Production deployment'
+
+# Ensure only one deployment runs at a time
+concurrency: 1
+
+# Trigger workflow when changes are pushed to main
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'bh_analytics/**'
+
+jobs:
+  deploy:
+    name: 'Deploy bundle'
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository
+      - uses: actions/checkout@v3
+
+      # Download the Databricks CLI
+      - uses: databricks/setup-cli@main
+
+      # Deploy the bundle to the prod target
+      - run: databricks bundle deploy
+        working-directory: bh_analytics
+        env:
+          DATABRICKS_TOKEN: ${{ secrets.SP_TOKEN }}
+          DATABRICKS_BUNDLE_ENV: prod
